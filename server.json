@@ -1,31 +1,37 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "eu.ansvar/bulgarian-cybersecurity-mcp",
-  "description": "Query CERT-BG (Bulgarian National Computer Security Incident Response Team) cybersecurity guidelines, advisories, and frameworks",
+  "description": "CERT-BG (Bulgarian National Computer Security Incident Response Team) MCP server — cybersecurity guidelines, advisories, and frameworks for Bulgaria",
   "repository": {
     "url": "https://github.com/Ansvar-Systems/bulgarian-cybersecurity-mcp",
     "source": "github"
   },
   "homepage": "https://ansvar.eu",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "license": "Apache-2.0",
   "keywords": [
-    "cert-bg",
-    "bulgarian-cybersecurity",
     "cybersecurity",
     "bulgaria",
-    "information-security",
+    "regulation",
     "compliance",
-    "mcp",
-    "ansvar"
+    "mcp"
   ],
   "packages": [
     {
       "registryType": "npm",
       "identifier": "@ansvar/bulgarian-cybersecurity-mcp",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "transport": {
         "type": "stdio"
+      }
+    },
+    {
+      "registryType": "npm",
+      "identifier": "@ansvar/bulgarian-cybersecurity-mcp",
+      "version": "1.0.0",
+      "transport": {
+        "type": "streamable-http",
+        "url": "https://mcp.ansvar.eu/bulgarian-cybersecurity/mcp"
       }
     }
   ]
