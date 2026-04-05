@@ -26,6 +26,7 @@ import {
   searchAdvisories,
   getAdvisory,
   listFrameworks,
+  getDataFreshness,
 } from "./db.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -153,6 +154,26 @@ const TOOLS = [
       required: [],
     },
   },
+  {
+    name: "bg_cyber_list_sources",
+    description:
+      "List all authoritative data sources used by this MCP server, including CERT-BG and DANS provenance metadata, source URLs, and coverage scope.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: "bg_cyber_check_data_freshness",
+    description:
+      "Check data freshness: returns record counts and latest document dates for guidance, advisories, and frameworks in the database.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
 ];
 
 // --- Zod schemas for argument validation --------------------------------------
@@ -181,10 +202,24 @@ const GetAdvisoryArgs = z.object({
 
 // --- Helper ------------------------------------------------------------------
 
+const _META = {
+  disclaimer:
+    "Data sourced from CERT-BG and DANS official publications. This is a research tool — verify all references against primary sources before making compliance decisions. Not regulatory or legal advice.",
+  copyright:
+    "Source data is the property of the respective Bulgarian government authorities (CERT-BG / DANS). Structured access provided by Ansvar Systems AB.",
+  source_url: "https://www.govcert.bg/",
+  data_age:
+    "Periodic updates; may lag official publications. Use bg_cyber_check_data_freshness for current record counts and latest document dates.",
+};
+
 function textContent(data: unknown) {
+  const payload =
+    typeof data === "object" && data !== null
+      ? { ...(data as object), _meta: _META }
+      : { data, _meta: _META };
   return {
     content: [
-      { type: "text" as const, text: JSON.stringify(data, null, 2) },
+      { type: "text" as const, text: JSON.stringify(payload, null, 2) },
     ],
   };
 }
@@ -271,6 +306,48 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           },
           tools: TOOLS.map((t) => ({ name: t.name, description: t.description })),
         });
+      }
+
+      case "bg_cyber_list_sources": {
+        return textContent({
+          sources: [
+            {
+              id: "cert-bg",
+              name: "CERT-BG — Bulgarian National CSIRT",
+              authority: "State Agency for National Security (DANS)",
+              url: "https://www.govcert.bg/",
+              scope: "Cybersecurity guidelines, security advisories, incident response materials, NIS2 implementation guidance for Bulgaria",
+              language: "Bulgarian (bg) and English (en) where available",
+              license: "Public domain — official government publications",
+              update_frequency: "Periodic; run `npm run ingest` to refresh",
+            },
+            {
+              id: "dans",
+              name: "DANS — State Agency for National Security",
+              authority: "State Agency for National Security of Bulgaria",
+              url: "https://www.dans.bg/",
+              scope: "National cybersecurity standards, recommendations, and framework materials",
+              language: "Bulgarian (bg)",
+              license: "Public domain — official government publications",
+              update_frequency: "Periodic; run `npm run ingest` to refresh",
+            },
+            {
+              id: "nis2-bg",
+              name: "NIS2 Directive — Bulgarian implementation",
+              authority: "European Union / Bulgarian transposition",
+              url: "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32022L2555",
+              scope: "NIS2 Directive (EU 2022/2555) guidance and compliance materials as applied in Bulgaria",
+              language: "Bulgarian (bg) and English (en)",
+              license: "Public domain — EU official publications",
+              update_frequency: "Periodic",
+            },
+          ],
+        });
+      }
+
+      case "bg_cyber_check_data_freshness": {
+        const freshness = getDataFreshness();
+        return textContent(freshness);
       }
 
       default:

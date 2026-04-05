@@ -261,3 +261,42 @@ export function listFrameworks(): Framework[] {
     .prepare("SELECT * FROM frameworks ORDER BY id")
     .all() as Framework[];
 }
+
+// --- Data freshness -----------------------------------------------------------
+
+export interface DataFreshness {
+  guidance_count: number;
+  advisories_count: number;
+  frameworks_count: number;
+  latest_guidance_date: string | null;
+  latest_advisory_date: string | null;
+  checked_at: string;
+}
+
+export function getDataFreshness(): DataFreshness {
+  const db = getDb();
+  const guidance_count = (
+    db.prepare("SELECT COUNT(*) as count FROM guidance").get() as { count: number }
+  ).count;
+  const advisories_count = (
+    db.prepare("SELECT COUNT(*) as count FROM advisories").get() as { count: number }
+  ).count;
+  const frameworks_count = (
+    db.prepare("SELECT COUNT(*) as count FROM frameworks").get() as { count: number }
+  ).count;
+  const latest_guidance = db
+    .prepare("SELECT MAX(date) as latest FROM guidance")
+    .get() as { latest: string | null };
+  const latest_advisory = db
+    .prepare("SELECT MAX(date) as latest FROM advisories")
+    .get() as { latest: string | null };
+
+  return {
+    guidance_count,
+    advisories_count,
+    frameworks_count,
+    latest_guidance_date: latest_guidance.latest,
+    latest_advisory_date: latest_advisory.latest,
+    checked_at: new Date().toISOString(),
+  };
+}
