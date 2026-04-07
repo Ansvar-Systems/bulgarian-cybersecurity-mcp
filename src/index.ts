@@ -27,6 +27,7 @@ import {
   getAdvisory,
   listFrameworks,
 } from "./db.js";
+import { buildCitation } from "./citation.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -230,7 +231,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (!doc) {
           return errorContent(`Guidance document not found: ${parsed.reference}`);
         }
-        return textContent(doc);
+        return textContent({
+          ...(typeof doc === 'object' ? doc : { data: doc }),
+          _citation: buildCitation(
+            (doc as any).reference || parsed.reference,
+            (doc as any).title || (doc as any).subject || '',
+            'bg_cyber_get_guidance',
+            { reference: parsed.reference },
+            (doc as any).url || null,
+          ),
+        });
       }
 
       case "bg_cyber_search_advisories": {
@@ -249,7 +259,16 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         if (!advisory) {
           return errorContent(`Advisory not found: ${parsed.reference}`);
         }
-        return textContent(advisory);
+        return textContent({
+          ...(typeof advisory === 'object' ? advisory : { data: advisory }),
+          _citation: buildCitation(
+            (advisory as any).reference || parsed.reference,
+            (advisory as any).title || (advisory as any).subject || '',
+            'bg_cyber_get_advisory',
+            { reference: parsed.reference },
+            (advisory as any).url || null,
+          ),
+        });
       }
 
       case "bg_cyber_list_frameworks": {
