@@ -6,6 +6,8 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CI](https://github.com/Ansvar-Systems/bulgarian-cybersecurity-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Ansvar-Systems/bulgarian-cybersecurity-mcp/actions/workflows/ci.yml)
 
+> **Note:** The CI badge above will become active once the first CI run completes on the `dev` or `main` branch.
+
 Query Bulgarian cybersecurity data -- regulations, decisions, and requirements from CERT Bulgaria -- directly from Claude, Cursor, or any MCP-compatible client.
 
 Built by [Ansvar Systems](https://ansvar.eu) -- Stockholm, Sweden
@@ -90,7 +92,7 @@ npx @ansvar/bulgarian-cybersecurity-mcp
 
 ---
 
-## Available Tools (6)
+## Available Tools (8)
 
 | Tool | Description |
 |------|-------------|
@@ -100,8 +102,12 @@ npx @ansvar/bulgarian-cybersecurity-mcp
 | `bg_cyber_get_advisory` | Get a specific CERT-BG security advisory by reference (e.g., |
 | `bg_cyber_list_frameworks` | List all cybersecurity frameworks and standard series covered in this MCP, including CERT-BG guidelines, DANS recomme... |
 | `bg_cyber_about` | Return metadata about this MCP server: version, data source, coverage, and tool list. |
+| `bg_cyber_list_sources` | List all authoritative data sources with provenance metadata, URLs, and coverage scope. |
+| `bg_cyber_check_data_freshness` | Check database record counts and latest document dates for guidance, advisories, and frameworks. |
 
-All tools return structured data with source references and timestamps.
+All tools return structured data with source references and timestamps. Every response includes a `_meta` block with disclaimer, copyright, and data-age notice.
+
+See [TOOLS.md](TOOLS.md) for full parameter documentation.
 
 ---
 
@@ -117,7 +123,7 @@ All content is sourced from official Bulgarian regulatory publications:
 - Freshness checks run via GitHub Actions workflows
 - Last-updated timestamps in tool responses indicate data age
 
-See `sources.yml` for full provenance metadata.
+See [COVERAGE.md](COVERAGE.md) for corpus documentation and [TOOLS.md](TOOLS.md) for tool-level source metadata.
 
 ---
 
@@ -180,8 +186,8 @@ npx @anthropic/mcp-inspector node dist/index.js   # Test with MCP Inspector
 ### Data Management
 
 ```bash
-npm run build:db       # Rebuild SQLite database from seed data
-npm run check-updates  # Check for new regulatory data
+npm run seed    # Seed the SQLite database with sample data
+npm run ingest  # Crawl CERT-BG and populate the database with live documents
 ```
 
 ---
@@ -218,7 +224,7 @@ Apache License 2.0. See [LICENSE](./LICENSE) for details.
 
 ### Data Licenses
 
-Regulatory data sourced from official government publications. See `sources.yml` for per-source licensing details.
+Regulatory data sourced from official government publications. See [COVERAGE.md](COVERAGE.md) for per-source licensing details.
 
 ---
 
