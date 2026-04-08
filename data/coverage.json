@@ -1,0 +1,52 @@
+{
+  "generated_at": "2026-04-05",
+  "note": "Sample seed data only. Run `npm run ingest` to populate with live CERT-BG documents.",
+  "frameworks": [
+    {
+      "id": "CERT-BG",
+      "name": "CERT-BG Guidelines",
+      "authority": "Bulgarian National CSIRT (CERT-BG) / State Agency for National Security (DANS)",
+      "url": "https://www.govcert.bg/",
+      "document_count_seed": 5,
+      "document_count_live": "varies — run ingest"
+    },
+    {
+      "id": "DANS",
+      "name": "DANS Recommendations",
+      "authority": "State Agency for National Security of Bulgaria (DANS)",
+      "url": "https://www.dans.bg/",
+      "document_count_seed": 2,
+      "document_count_live": "varies — run ingest"
+    },
+    {
+      "id": "NIS2",
+      "name": "NIS2 Implementation (Bulgaria)",
+      "authority": "European Union / Bulgarian transposition",
+      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32022L2555",
+      "document_count_seed": 1,
+      "document_count_live": "varies — run ingest"
+    }
+  ],
+  "guidance_sample_count": 5,
+  "advisories_sample_count": 3,
+  "languages": ["bg", "en"],
+  "coverage_gaps": [
+    "Full corpus requires running npm run ingest",
+    "Historical documents may not be fully crawled",
+    "Most source documents are in Bulgarian only"
+  ],
+  "sources": [
+    {
+      "id": "cert-bg",
+      "name": "CERT-BG",
+      "url": "https://www.govcert.bg/",
+      "license": "Public domain — official government publications"
+    },
+    {
+      "id": "dans",
+      "name": "DANS",
+      "url": "https://www.dans.bg/",
+      "license": "Public domain — official government publications"
+    }
+  ]
+}
