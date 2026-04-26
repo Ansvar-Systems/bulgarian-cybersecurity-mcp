@@ -63,6 +63,14 @@ const dryRun = args.includes("--dry-run");
 const resume = args.includes("--resume");
 const advisoriesOnly = args.includes("--advisories-only");
 const guidanceOnly = args.includes("--guidance-only");
+const maxPages = (() => {
+  const idx = args.indexOf("--max-pages");
+  if (idx !== -1 && args[idx + 1]) {
+    const n = parseInt(args[idx + 1]!, 10);
+    return Number.isFinite(n) && n > 0 ? n : 100;
+  }
+  return 100; // Default: stop after 100 pages to prevent infinite loops
+})();
 
 // ---------------------------------------------------------------------------
 // Types
@@ -738,8 +746,25 @@ async function crawlAllListingPages(
   const allEntries: ListingEntry[] = [];
   let currentUrl: string | null = startUrl;
   let pageNum = 1;
+  const visitedPages = new Set<string>();
 
   while (currentUrl) {
+    // Guard against infinite pagination loops
+    if (pageNum > maxPages) {
+      console.log(
+        `  [${label}] Reached max page limit (${maxPages}), stopping pagination`,
+      );
+      break;
+    }
+    // Guard against revisiting the same URL (circular pagination)
+    if (visitedPages.has(currentUrl)) {
+      console.log(
+        `  [${label}] Detected duplicate page URL, stopping pagination: ${currentUrl}`,
+      );
+      break;
+    }
+    visitedPages.add(currentUrl);
+
     console.log(`  [${label}] Fetching page ${pageNum}: ${currentUrl}`);
     try {
       const { entries, nextPageUrl } = await scrapeListingPage(currentUrl);
@@ -1102,6 +1127,11 @@ async function main(): Promise<void> {
 
   if (force && existsSync(DB_PATH)) {
     unlinkSync(DB_PATH);
+    // Clean up WAL/SHM journal files left by previous runs
+    for (const suffix of ["-wal", "-shm"]) {
+      const jf = DB_PATH + suffix;
+      if (existsSync(jf)) unlinkSync(jf);
+    }
     console.log(`Deleted existing database at ${DB_PATH}`);
   }
 
